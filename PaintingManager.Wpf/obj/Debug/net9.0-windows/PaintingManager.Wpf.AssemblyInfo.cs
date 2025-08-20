@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PaintingManager.Wpf")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cba8ae1388cf99331891d724f07a72106ebc948f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f0181f5c09d2e08db682cdd83b324e1586035487")]
 [assembly: System.Reflection.AssemblyProductAttribute("PaintingManager.Wpf")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PaintingManager.Wpf")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
