@@ -4,8 +4,6 @@ VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "backend-api", "backend-api\backend-api.csproj", "{B880BCA3-3564-D0C7-1FE1-265638FC29D1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaintingManager.Wpf", "PaintingManager.Wpf\PaintingManager.Wpf.csproj", "{38EC0571-8E90-F24B-93D3-3F900BD99E47}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
