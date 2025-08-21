@@ -8,7 +8,7 @@ export const useAuthStore = defineStore('auth', {
   }),
   actions: {
     async login(username, password) {
-      const resp = await axios.post('http://localhost:5000/login', { username, password })
+      const resp = await axios.post('http://localhost:5029/api/auth/login', { username, password })
       if (resp.status !== 200) throw new Error('Login failed')
       this.token = resp.data.token
       this.role = resp.data.role

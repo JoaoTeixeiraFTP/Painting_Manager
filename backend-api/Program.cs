@@ -14,7 +14,25 @@ builder.Services.AddScoped<AuthService>();
 // Controllers
 builder.Services.AddControllers();
 
+// 🔑 Configurar CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5173") // frontend
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+
 var app = builder.Build();
+
+// 🚀 Ativar CORS antes da autenticação
+app.UseCors("AllowFrontend");
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 
