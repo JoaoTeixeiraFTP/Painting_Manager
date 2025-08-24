@@ -46,11 +46,11 @@ public class AuthService
     // 🔑 Validação de utilizador
     public User? ValidateUser(LoginDto dto)
     {
-        Console.WriteLine($"[AuthService] Tentativa de login -> Username: {dto.Username}, Password (raw): {dto.Password}");
+        //Console.WriteLine($"[AuthService] Tentativa de login -> Username: {dto.Username}, Password (raw): {dto.Password}");
 
         // 1️⃣ Hash da password recebida
         var hashedPassword = ComputeSha256Hash(dto.Password);
-        Console.WriteLine($"[AuthService] SHA256 calculado: {hashedPassword}");
+        //Console.WriteLine($"[AuthService] SHA256 calculado: {hashedPassword}");
 
         // 2️⃣ Procurar na DB
         var user = _db.Users
@@ -60,11 +60,11 @@ public class AuthService
 
         if (user == null)
         {
-            Console.WriteLine($"[AuthService] Falhou login: utilizador '{dto.Username}' não encontrado ou password inválida.");
+            //Console.WriteLine($"[AuthService] Falhou login: utilizador '{dto.Username}' não encontrado ou password inválida.");
         }
         else
         {
-            Console.WriteLine($"[AuthService] Login bem-sucedido -> UserId: {user.Id}, RoleId: {user.RoleId}");
+            //Console.WriteLine($"[AuthService] Login bem-sucedido -> UserId: {user.Id}, RoleId: {user.RoleId}");
         }
 
         return user;
