@@ -42,7 +42,7 @@ const login = async () => {
   error.value = ''
   try {
     await auth.login(username.value, password.value)
-    router.push('/') // dashboard
+    router.push('/dashboard') // dashboard
   } catch (err) {
     error.value = 'Login inválido!'
     console.error(err)

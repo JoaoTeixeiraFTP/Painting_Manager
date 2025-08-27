@@ -1,24 +1,18 @@
 <template>
-  <v-container>
-    <h1>Dashboard</h1>
-    <p>Bem-vindo! Token: {{ token }}</p>
-    <p>Role: {{ role }}</p>
-    <v-btn color="red" @click="logout">Logout</v-btn>
-  </v-container>
+  <BaseLayout>
+    <div class="space-y-4">
+      <h1 class="text-2xl font-bold">Dashboard</h1>
+      <p>Bem-vindo! Token: {{ token }}</p>
+      <p>Role: {{ role }}</p>
+    </div>
+  </BaseLayout>
 </template>
 
 <script setup>
+import BaseLayout from '../layouts/BaseLayout.vue'
 import { useAuthStore } from '../stores/auth'
-import { useRouter } from 'vue-router'
 
 const auth = useAuthStore()
-const router = useRouter()
-
 const token = auth.token
 const role = auth.role
-
-const logout = () => {
-  auth.logout()
-  router.push('/login')
-}
 </script>
