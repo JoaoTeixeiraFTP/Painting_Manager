@@ -14,8 +14,5 @@ namespace PaintingManager.Api.Entities
         [Column("name")]
         [MaxLength(100)]
         public string Name { get; set; } = string.Empty;
-
-        [Column("description")]
-        public string? Description { get; set; }
     }
 }

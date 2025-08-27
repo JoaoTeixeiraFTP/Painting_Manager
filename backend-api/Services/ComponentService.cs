@@ -21,7 +21,6 @@ namespace PaintingManager.Api.Services
                 {
                     Id = c.Id,
                     Name = c.Name,
-                    Description = c.Description
                 })
                 .ToListAsync();
         }
@@ -35,7 +34,6 @@ namespace PaintingManager.Api.Services
             {
                 Id = component.Id,
                 Name = component.Name,
-                Description = component.Description
             };
         }
 
@@ -44,7 +42,6 @@ namespace PaintingManager.Api.Services
             var component = new Component
             {
                 Name = dto.Name,
-                Description = dto.Description
             };
 
             _context.Components.Add(component);
@@ -54,7 +51,6 @@ namespace PaintingManager.Api.Services
             {
                 Id = component.Id,
                 Name = component.Name,
-                Description = component.Description
             };
         }
 
@@ -64,7 +60,6 @@ namespace PaintingManager.Api.Services
             if (component == null) return false;
 
             component.Name = dto.Name;
-            component.Description = dto.Description;
 
             await _context.SaveChangesAsync();
             return true;

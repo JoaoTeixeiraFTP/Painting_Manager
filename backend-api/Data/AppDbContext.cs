@@ -14,6 +14,7 @@ public class AppDbContext : DbContext
     public DbSet<Color> Colors { get; set; }
     public DbSet<Component> Components { get; set; }
     public DbSet<Formula> Formulas { get; set; }
+    public DbSet<FormulaLine> FormulaLines { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
