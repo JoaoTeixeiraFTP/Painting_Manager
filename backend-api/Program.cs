@@ -15,6 +15,9 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddControllers();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<GroupService>();
+builder.Services.AddScoped<ColorService>();
+builder.Services.AddScoped<ComponentService>();
+builder.Services.AddScoped<FormulaService>();
 
 // 🔑 Configurar CORS
 builder.Services.AddCors(options =>
