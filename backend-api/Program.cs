@@ -19,6 +19,7 @@ builder.Services.AddScoped<ColorService>();
 builder.Services.AddScoped<ComponentService>();
 builder.Services.AddScoped<FormulaService>();
 builder.Services.AddScoped<FormulaLineService>();
+builder.Services.AddScoped<MontedService>();
 
 // 🔑 Configurar CORS
 builder.Services.AddCors(options =>
