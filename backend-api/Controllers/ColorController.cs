@@ -52,5 +52,12 @@ namespace PaintingManager.Api.Controllers
             if (!deleted) return NotFound();
             return NoContent();
         }
+
+        // [HttpGet("monted")]
+        // public async Task<IActionResult> GetMontedColors()
+        // {
+        //     var montedColors = await _colorService.GetMontedColorsAsync();
+        //     return Ok(montedColors);
+        // }
     }
 }

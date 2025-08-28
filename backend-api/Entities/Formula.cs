@@ -33,5 +33,7 @@ namespace PaintingManager.Api.Entities
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public ICollection<FormulaLine>? FormulaLines { get; set; }
     }
 }

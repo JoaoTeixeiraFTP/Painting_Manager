@@ -18,7 +18,8 @@ namespace PaintingManager.Api.Entities
 
         [Column("name")]
         public string? Name { get; set; }
-
         public Group? Group { get; set; }
+
+        public ICollection<Formula>? Formulas { get; set; }
     }
 }
