@@ -1,3 +1,26 @@
+<script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
+
+const username = ref('')
+const password = ref('')
+const error = ref('')
+const router = useRouter()
+const auth = useAuthStore()
+
+const login = async () => {
+  error.value = ''
+  try {
+    await auth.login(username.value, password.value)
+    router.push('/dashboard')
+  } catch (err) {
+    error.value = 'Login inválido!'
+    console.error(err)
+  }
+}
+</script>
+
 <template>
   <v-container class="fill-height" fluid>
     <v-row align="center" justify="center">
@@ -26,26 +49,3 @@
     </v-row>
   </v-container>
 </template>
-
-<script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
-
-const username = ref('')
-const password = ref('')
-const error = ref('')
-const router = useRouter()
-const auth = useAuthStore()
-
-const login = async () => {
-  error.value = ''
-  try {
-    await auth.login(username.value, password.value)
-    router.push('/dashboard') // dashboard
-  } catch (err) {
-    error.value = 'Login inválido!'
-    console.error(err)
-  }
-}
-</script>

@@ -2,16 +2,13 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Palette, PaintBucket, Layers, Folder } from 'lucide-vue-next'
+import { useAuthStore } from '../stores/auth'
 
 const router = useRouter()
+const auth = useAuthStore()
 const groups = ref([])
 
-const icons = {
-  2: Palette,
-  3: PaintBucket,
-  4: Layers
-}
-
+const icons = { 2: Palette, 3: PaintBucket, 4: Layers }
 const colors = ['#f87171', '#facc15', '#34d399', '#60a5fa', '#a78bfa', '#f472b6']
 
 onMounted(async () => {
@@ -24,15 +21,9 @@ onMounted(async () => {
   }
 })
 
-// Navegação para grupo
-const navigate = (id) => {
-  router.push(`/group/${id}`)
-}
-
-// Logout
+const navigate = (id) => router.push(`/group/${id}`)
 const logout = () => {
-  localStorage.clear()
-  sessionStorage.clear()
+  auth.logout()
   router.push('/login')
 }
 </script>
