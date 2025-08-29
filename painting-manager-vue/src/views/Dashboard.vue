@@ -3,10 +3,10 @@ import BaseLayout from '../layouts/BaseLayout.vue'
 import { useAuthStore } from '../stores/auth'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import FormulaCard from '../components/FormulaCard.vue'
 
 const auth = useAuthStore()
 const token = auth.token
-const role = auth.role
 
 const formulas = ref([])
 
@@ -38,23 +38,7 @@ onMounted(() => {
         <div v-if="formulas.length === 0" class="empty">Nenhuma fórmula encontrada.</div>
 
         <div v-else class="grid">
-          <div v-for="(f, index) in formulas" :key="index" class="card">
-            <p class="titulo">{{ f.titulo }}</p>
-            <p class="grupo">{{ f.grupo }}</p>
-            <p class="cliente"><strong>Cliente:</strong> {{ f.cliente }}</p>
-
-            <div v-if="f.formula.length > 0" class="componentes">
-              <p class="componentes-title">Componentes:</p>
-              <ul>
-                <li v-for="(line, idx) in f.formula" :key="idx">
-                  {{ line.componente }} - {{ line.quantidade }}
-                </li>
-              </ul>
-            </div>
-            <div v-else class="no-componentes">
-              <em>Sem componentes</em>
-            </div>
-          </div>
+          <FormulaCard v-for="(f, index) in formulas" :key="index" :formula="f" />
         </div>
       </div>
     </div>
@@ -84,49 +68,6 @@ h2 {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;
-}
-
-.card {
-  background-color: #fff;
-  border-radius: 8px;
-  padding: 15px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  transition: box-shadow 0.3s ease;
-}
-
-.card:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-}
-
-.titulo {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.grupo {
-  color: #555;
-  margin-bottom: 5px;
-}
-
-.cliente {
-  margin-bottom: 10px;
-}
-
-.componentes-title {
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.componentes ul {
-  list-style-type: disc;
-  padding-left: 20px;
-  margin: 0;
-}
-
-.no-componentes {
-  font-style: italic;
-  color: #888;
 }
 
 .empty {

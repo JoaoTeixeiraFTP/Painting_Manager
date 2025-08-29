@@ -1,39 +1,3 @@
-<template>
-  <div class="layout">
-    <!-- Header -->
-    <header class="header">
-      <div class="logo">
-        <img src="/images/logo_apt_bg.png" alt="Logo" />
-      </div>
-
-      <nav class="menu">
-        <button
-          v-for="(group, index) in groups"
-          :key="group.id"
-          @click="navigate(group.path)"
-          class="menu-item"
-          :style="{ '--hover-color': colors[index % colors.length] }"
-        >
-          <component :is="icons[group.id] || Folder" class="icon" />
-          <span>{{ group.name }}</span>
-        </button>
-      </nav>
-
-      <!-- Botão de logout à direita -->
-      <div class="logout">
-        <button @click="logout" class="logout-button">
-          Logout
-        </button>
-      </div>
-    </header>
-
-    <!-- Conteúdo -->
-    <main class="content">
-      <slot />
-    </main>
-  </div>
-</template>
-
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -48,7 +12,6 @@ const icons = {
   4: Layers
 }
 
-// Cores de hover para cada menu
 const colors = ['#f87171', '#facc15', '#34d399', '#60a5fa', '#a78bfa', '#f472b6']
 
 onMounted(async () => {
@@ -61,16 +24,51 @@ onMounted(async () => {
   }
 })
 
-const navigate = (path) => {
-  if (path) router.push(path)
+// Navegação para grupo
+const navigate = (id) => {
+  router.push(`/group/${id}`)
 }
 
+// Logout
 const logout = () => {
   localStorage.clear()
   sessionStorage.clear()
   router.push('/login')
 }
 </script>
+
+<template>
+  <div class="layout">
+    <header class="header">
+      <div class="logo">
+        <a href="/dashboard">
+          <img src="/images/logo_apt_bg.png" alt="Logo" />
+        </a>
+      </div>
+
+      <nav class="menu">
+        <button
+          v-for="(group, index) in groups"
+          :key="group.id"
+          @click="navigate(group.id)"
+          class="menu-item"
+          :style="{ '--hover-color': colors[index % colors.length] }"
+        >
+          <component :is="icons[group.id] || Folder" class="icon" />
+          <span>{{ group.name }}</span>
+        </button>
+      </nav>
+
+      <div class="logout">
+        <button @click="logout" class="logout-button">Logout</button>
+      </div>
+    </header>
+
+    <main class="content">
+      <slot />
+    </main>
+  </div>
+</template>
 
 <style scoped>
 .layout {
@@ -79,7 +77,6 @@ const logout = () => {
   min-height: 100vh;
 }
 
-/* Header horizontal */
 .header {
   display: flex;
   align-items: center;
@@ -88,7 +85,6 @@ const logout = () => {
   padding: 16px;
 }
 
-/* Logo */
 .logo img {
   width: 64px;
   height: auto;
@@ -98,12 +94,11 @@ const logout = () => {
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* Menu horizontal distribuído */
 .menu {
   display: flex;
   flex: 1;
-  justify-content: center; /* menus centralizados */
-  gap: 32px; /* espaço entre menus */
+  justify-content: center;
+  gap: 32px;
   margin-left: 32px;
 }
 
@@ -113,21 +108,19 @@ const logout = () => {
   gap: 8px;
   background: none;
   border: none;
-  color: white; /* cor padrão branca */
+  color: white;
   cursor: pointer;
   font-size: 16px;
   transition: color 0.2s, transform 0.2s;
 }
 
-/* Hover colorido */
 .menu-item:hover {
   color: var(--hover-color);
-  transform: scale(1.1); /* leve zoom no hover */
+  transform: scale(1.1);
 }
 
-/* Botão de logout */
 .logout {
-  margin-left: auto; /* empurra para a direita */
+  margin-left: auto;
 }
 
 .logout-button {
@@ -144,13 +137,11 @@ const logout = () => {
   background: #f87171;
 }
 
-/* Ícones */
 .icon {
   width: 20px;
   height: 20px;
 }
 
-/* Conteúdo principal */
 .content {
   flex: 1;
   padding: 32px;

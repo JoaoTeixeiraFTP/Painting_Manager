@@ -3,6 +3,7 @@ namespace PaintingManager.Api.Dtos
     public class MontedDto
     {
         public string? Titulo { get; set; }     // Ex: RAL1001
+        public string? NomeCor { get; set; }    // Ex: "Bege Areia" (name da cor)
         public string? Grupo { get; set; }      // Ex: RAL
         public string? Cliente { get; set; }    // Ex: Formula Base ou Cliente XPTO
         public List<MontedLineDto>? Formula { get; set; }

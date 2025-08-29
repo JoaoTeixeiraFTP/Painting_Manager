@@ -55,6 +55,7 @@ namespace PaintingManager.Api.Services
             return formulas.Select(f => new MontedDto
             {
                 Titulo = f.Color.code,
+                NomeCor = f.Color.Name,
                 Grupo = f.Color.Group.name,
                 Cliente = f.IsBase ? "Formula Base" : f.ClientName,
                 Formula = f.FormulaLines
@@ -79,8 +80,9 @@ namespace PaintingManager.Api.Services
 
             return formulas.Select(f => new MontedDto
             {
-                Titulo = f.Color.code,
-                Grupo = f.Color.Group.name,
+                Titulo = f.Color.code,               // código da cor (ex: RAL1001)
+                NomeCor = f.Color.Name,              // nome da cor (ex: Bege Areia)
+                Grupo = f.Color.Group.name,          // grupo da cor (ex: RAL)
                 Cliente = f.IsBase ? "Formula Base" : f.ClientName,
                 Formula = f.FormulaLines
                     .Select(fl => new MontedLineDto
@@ -91,6 +93,7 @@ namespace PaintingManager.Api.Services
                     .ToList()
             }).ToList();
         }
+
 
         // 🔹 Criar nova fórmula montada
         public MontedDto CreateFormula(MontedCreateDto dto)
@@ -171,6 +174,31 @@ namespace PaintingManager.Api.Services
 
             return GetFormulaDetailById(formula.Id);
         }
+        
+        public List<MontedDto> GetFormulasByTitulo(string titulo)
+        {
+            var formulas = _context.Formulas
+                .Include(f => f.Color)
+                    .ThenInclude(c => c.Group)
+                .Include(f => f.FormulaLines)
+                    .ThenInclude(fl => fl.Component)
+                .Where(f => f.Color.code == titulo)
+                .ToList();
 
+            return formulas.Select(f => new MontedDto
+            {
+                Titulo = f.Color.code,
+                NomeCor = f.Color.Name,
+                Grupo = f.Color.Group.name,
+                Cliente = f.IsBase ? "Formula Base" : f.ClientName,
+                Formula = f.FormulaLines
+                    .Select(fl => new MontedLineDto
+                    {
+                        Componente = fl.Component.Name,
+                        Quantidade = $"{fl.Quantity}L"
+                    })
+                    .ToList()
+            }).ToList();
+        }
     }
 }

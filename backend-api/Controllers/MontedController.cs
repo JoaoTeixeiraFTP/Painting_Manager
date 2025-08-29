@@ -51,5 +51,12 @@ namespace PaintingManager.Api.Controllers
             return CreatedAtAction(nameof(GetFormulaDetail), new { id = created.Titulo }, created);
         }
 
+        [HttpGet("formula/{titulo}")]
+        public ActionResult<List<MontedDto>> GetFormulaByTitulo(string titulo)
+        {
+            var formulas = _montedService.GetFormulasByTitulo(titulo);
+            if (formulas == null || !formulas.Any()) return NotFound();
+            return Ok(formulas);
+        }
     }
 }
