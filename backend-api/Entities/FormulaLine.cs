@@ -27,5 +27,8 @@ namespace PaintingManager.Api.Entities
         [Required]
         [Column("quantity", TypeName = "numeric(10,2)")]
         public decimal Quantity { get; set; }
+
+        [Column("unit")]
+        public string Unit { get; set; } = "g"; // default g
     }
 }

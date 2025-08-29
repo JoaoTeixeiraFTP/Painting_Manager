@@ -29,13 +29,15 @@ namespace PaintingManager.Api.Services
             return new MontedDto
             {
                 Titulo = formula.Color.code,
+                NomeCor = formula.Color.Name,
                 Grupo = formula.Color.Group.name,
                 Cliente = formula.IsBase ? "Formula Base" : formula.ClientName,
                 Formula = formula.FormulaLines
                     .Select(fl => new MontedLineDto
                     {
                         Componente = fl.Component.Name,
-                        Quantidade = $"{fl.Quantity}L"
+                        Quantidade = $"{fl.Quantity}",
+                        Unit = fl.Unit // 🔹 incluir unidade
                     })
                     .ToList()
             };
@@ -62,7 +64,8 @@ namespace PaintingManager.Api.Services
                     .Select(fl => new MontedLineDto
                     {
                         Componente = fl.Component.Name,
-                        Quantidade = $"{fl.Quantity}L"
+                        Quantidade = $"{fl.Quantity}",
+                        Unit = fl.Unit
                     })
                     .ToList()
             }).ToList();
@@ -80,20 +83,20 @@ namespace PaintingManager.Api.Services
 
             return formulas.Select(f => new MontedDto
             {
-                Titulo = f.Color.code,               // código da cor (ex: RAL1001)
-                NomeCor = f.Color.Name,              // nome da cor (ex: Bege Areia)
-                Grupo = f.Color.Group.name,          // grupo da cor (ex: RAL)
+                Titulo = f.Color.code,
+                NomeCor = f.Color.Name,
+                Grupo = f.Color.Group.name,
                 Cliente = f.IsBase ? "Formula Base" : f.ClientName,
                 Formula = f.FormulaLines
                     .Select(fl => new MontedLineDto
                     {
                         Componente = fl.Component.Name,
-                        Quantidade = $"{fl.Quantity}L"
+                        Quantidade = $"{fl.Quantity}",
+                        Unit = fl.Unit
                     })
                     .ToList()
             }).ToList();
         }
-
 
         // 🔹 Criar nova fórmula montada
         public MontedDto CreateFormula(MontedCreateDto dto)
@@ -106,7 +109,8 @@ namespace PaintingManager.Api.Services
                 FormulaLines = dto.Formula.Select(l => new FormulaLine
                 {
                     ComponentId = l.ComponentId,
-                    Quantity = l.Quantity
+                    Quantity = l.Quantity,
+                    Unit = string.IsNullOrWhiteSpace(l.Unit) ? "L" : l.Unit
                 }).ToList()
             };
 
@@ -116,6 +120,7 @@ namespace PaintingManager.Api.Services
             return GetFormulaDetailById(formula.Id);
         }
 
+        // 🔹 Criar fórmula completa (novo grupo, cor, componentes)
         public MontedDto CreateFullFormula(MontedFullCreateDto dto)
         {
             // 1️⃣ Grupo
@@ -156,7 +161,8 @@ namespace PaintingManager.Api.Services
                 formulaLines.Add(new FormulaLine
                 {
                     ComponentId = component.Id,
-                    Quantity = line.Quantity
+                    Quantity = line.Quantity,
+                    Unit = string.IsNullOrWhiteSpace(line.Unit) ? "L" : line.Unit
                 });
             }
 
@@ -175,6 +181,7 @@ namespace PaintingManager.Api.Services
             return GetFormulaDetailById(formula.Id);
         }
         
+        // 🔹 Obter fórmulas pelo código da cor
         public List<MontedDto> GetFormulasByTitulo(string titulo)
         {
             var formulas = _context.Formulas
@@ -195,7 +202,8 @@ namespace PaintingManager.Api.Services
                     .Select(fl => new MontedLineDto
                     {
                         Componente = fl.Component.Name,
-                        Quantidade = $"{fl.Quantity}L"
+                        Quantidade = $"{fl.Quantity}",
+                        Unit = fl.Unit
                     })
                     .ToList()
             }).ToList();

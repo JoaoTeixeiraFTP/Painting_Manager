@@ -13,6 +13,7 @@ namespace PaintingManager.Api.Dtos
     {
         public string? Componente { get; set; }   // Nome do componente
         public string? Quantidade { get; set; }   // Quantidade formatada (ex: 20L)
+        public string Unit { get; set; } = "g";
     }
 
     public class MontedCreateDto
@@ -27,5 +28,6 @@ namespace PaintingManager.Api.Dtos
     {
         public int ComponentId { get; set; }   // Id do componente
         public decimal Quantity { get; set; }  // Quantidade (em litros)
+        public string Unit { get; set; } = "g";
     }
 }
