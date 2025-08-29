@@ -60,6 +60,9 @@ const logout = () => {
       </nav>
 
       <div class="logout">
+        <button @click="router.push('/new-formula')" class="new-formula-button">
+          Nova Fórmula
+        </button>
         <button @click="logout" class="logout-button">Logout</button>
       </div>
     </header>
@@ -147,4 +150,20 @@ const logout = () => {
   padding: 32px;
   background-color: #f3f4f6;
 }
+
+.new-formula-button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-right: 12px;
+}
+
+.new-formula-button:hover {
+  background: #60a5fa;
+}
+
 </style>
