@@ -1,25 +1,41 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import BaseLayout from '../layouts/BaseLayout.vue'
 
 const route = useRoute()
 const router = useRouter()
 const formulas = ref([])
-const titulo = decodeURIComponent(route.params.titulo)
+const loading = ref(true)
+const error = ref(null)
 
-onMounted(async () => {
+// Função para carregar a fórmula
+const loadFormula = async (titulo) => {
+  loading.value = true
+  error.value = null
   try {
-    console.log('[FormulaDetails] Carregando fórmula para:', titulo)
     const response = await fetch(`http://localhost:5029/api/monted/formula/${titulo}`)
     if (!response.ok) throw new Error('Erro ao carregar a fórmula')
     const data = await response.json()
-    console.log('[FormulaDetails] Dados recebidos:', data)
-
     formulas.value = data.map(f => ({ ...f, id: f.id }))
-    console.log('[FormulaDetails] Formulas com ID: ', formulas.value)
-  } catch (error) {
-    console.error('[FormulaDetails] Erro ao carregar fórmula:', error)
+  } catch (err) {
+    console.error(err)
+    error.value = err.message
+  } finally {
+    loading.value = false
+  }
+}
+
+// Carrega a fórmula na montagem
+onMounted(() => {
+  const titulo = decodeURIComponent(route.params.titulo)
+  loadFormula(titulo)
+})
+
+// Observa mudanças no parâmetro da rota
+watch(() => route.params.titulo, (newTitulo) => {
+  if (newTitulo) {
+    loadFormula(decodeURIComponent(newTitulo))
   }
 })
 
@@ -31,7 +47,7 @@ const editarFormula = (formula) => {
       code: formula.titulo,
       name: formula.nomeCor
     },
-    description: formula.descricao || '', // 👈 aqui
+    description: formula.descricao || '',
     isBase: formula.cliente === "Formula Base",
     clientName: formula.cliente !== "Formula Base" ? formula.cliente : '',
     formula: formula.formula.map(l => ({
@@ -49,7 +65,12 @@ const editarFormula = (formula) => {
   <BaseLayout>
     <div class="page-container">
       <h1 class="page-title">📘 Detalhes da Fórmula</h1>
-      <div v-if="formulas.length">
+
+      <div v-if="loading">Carregando...</div>
+      <div v-else-if="error">{{ error }}</div>
+      <div v-else-if="formulas.length === 0">Nenhuma fórmula encontrada.</div>
+
+      <div v-else>
         <div v-for="(formula, index) in formulas" :key="index" class="formula-card">
           <header class="formula-header">
             <h2 class="formula-title">{{ formula.nomeCor || formula.titulo }}</h2>
@@ -57,9 +78,9 @@ const editarFormula = (formula) => {
 
           <div class="formula-info">
             <p><strong>Código:</strong> {{ formula.titulo }}</p>
-            <p><strong>Grupo:</strong> {{ formula.grupo }}</p>
+            <p><strong>Catálogo:</strong> {{ formula.grupo }}</p>
             <p v-if="formula.cliente"><strong>Cliente:</strong> {{ formula.cliente }}</p>
-            <p v-if="formula.descricao"><strong>Descrição:</strong> {{ formula.descricao }}</p> <!-- 👈 aqui -->
+            <p v-if="formula.descricao"><strong>Descrição:</strong> {{ formula.descricao }}</p>
           </div>
 
           <div class="components">
@@ -67,9 +88,7 @@ const editarFormula = (formula) => {
             <ul>
               <li v-for="(line, i) in formula.formula" :key="i">
                 <span class="component-name">{{ line.componente }}</span>
-                <span class="component-qty">
-                  {{ line.quantidade }} <small>{{ line.unit }}</small>
-                </span>
+                <span class="component-qty">{{ line.quantidade }} <small>{{ line.unit }}</small></span>
               </li>
             </ul>
           </div>
@@ -78,9 +97,6 @@ const editarFormula = (formula) => {
             ✏️ Editar
           </button>
         </div>
-      </div>
-      <div v-else class="loading">
-        <p>Carregando fórmula...</p>
       </div>
     </div>
   </BaseLayout>

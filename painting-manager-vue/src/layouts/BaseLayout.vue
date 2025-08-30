@@ -1,27 +1,49 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Palette, PaintBucket, Layers, Folder } from 'lucide-vue-next'
+import { Palette, PaintBucket, Layers, Folder, Search } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/auth'
 
 const router = useRouter()
 const auth = useAuthStore()
 const groups = ref([])
+const colors = ref([])
+
+const searchQuery = ref("")
+const searchResults = computed(() => {
+  if (!searchQuery.value) return []
+  return colors.value.filter(c =>
+    c.code.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+    c.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  )
+})
 
 const icons = { 2: Palette, 3: PaintBucket, 4: Layers }
-const colors = ['#f87171', '#facc15', '#34d399', '#60a5fa', '#a78bfa', '#f472b6']
+const menuColors = ['#f87171', '#facc15', '#34d399', '#60a5fa', '#a78bfa', '#f472b6']
 
 onMounted(async () => {
   try {
-    const response = await fetch('http://localhost:5029/api/groups/list')
-    if (!response.ok) throw new Error('Erro ao carregar menus')
-    groups.value = await response.json()
+    const [groupsResponse, colorsResponse] = await Promise.all([
+      fetch('http://localhost:5029/api/groups/list'),
+      fetch('http://localhost:5029/api/colors/list')
+    ])
+    if (!groupsResponse.ok || !colorsResponse.ok) throw new Error('Erro ao carregar dados')
+    groups.value = await groupsResponse.json()
+    colors.value = await colorsResponse.json()
   } catch (error) {
     console.error(error)
   }
 })
 
 const navigate = (id) => router.push(`/group/${id}`)
+
+const goToColor = (color) => {
+  searchQuery.value = ""
+  // Usa 'code', que corresponde ao valor que a API espera
+  router.push(`/formula/${encodeURIComponent(color.code)}`)
+}
+
+
 const logout = () => {
   auth.logout()
   router.push('/login')
@@ -37,19 +59,42 @@ const logout = () => {
         </a>
       </div>
 
+      <!-- MENU PRINCIPAL -->
       <nav class="menu">
         <button
           v-for="(group, index) in groups"
           :key="group.id"
           @click="navigate(group.id)"
           class="menu-item"
-          :style="{ '--hover-color': colors[index % colors.length] }"
+          :style="{ '--hover-color': menuColors[index % menuColors.length] }"
         >
           <component :is="icons[group.id] || Folder" class="icon" />
           <span>{{ group.name }}</span>
         </button>
       </nav>
 
+      <!-- SEARCH BAR -->
+      <div class="search-container">
+        <Search class="search-icon" />
+        <input
+          type="text"
+          v-model="searchQuery"
+          placeholder="Pesquisar cor..."
+          class="search-input"
+        />
+        <ul v-if="searchResults.length" class="search-results">
+          <li
+            v-for="color in searchResults"
+            :key="color.id"
+            @click="goToColor(color)"
+            class="search-item"
+          >
+            <strong>{{ color.name }}</strong> - {{ color.code }}
+          </li>
+        </ul>
+      </div>
+
+      <!-- AÇÕES -->
       <div class="logout">
         <button @click="router.push('/new-formula')" class="new-formula-button">
           Nova Fórmula
@@ -77,6 +122,7 @@ const logout = () => {
   background-color: #1f2937;
   color: white;
   padding: 16px;
+  position: relative;
 }
 
 .logo img {
@@ -111,6 +157,50 @@ const logout = () => {
 .menu-item:hover {
   color: var(--hover-color);
   transform: scale(1.1);
+}
+
+/* SEARCH BAR */
+.search-container {
+  position: relative;
+  margin-right: 24px;
+}
+.search-input {
+  padding: 6px 12px 6px 32px;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: white;
+}
+.search-icon {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: #6b7280;
+}
+.search-results {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  right: 0;
+  background: white;
+  color: black;
+  border-radius: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  z-index: 50;
+}
+.search-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #e5e7eb;
+}
+.search-item:hover {
+  background: #f3f4f6;
 }
 
 .logout {
@@ -156,5 +246,4 @@ const logout = () => {
 .new-formula-button:hover {
   background: #60a5fa;
 }
-
 </style>
