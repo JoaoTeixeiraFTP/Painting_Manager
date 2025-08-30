@@ -1,21 +1,48 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import BaseLayout from '../layouts/BaseLayout.vue'
 
 const route = useRoute()
+const router = useRouter()
 const formulas = ref([])
 const titulo = decodeURIComponent(route.params.titulo)
 
 onMounted(async () => {
   try {
+    console.log('[FormulaDetails] Carregando fórmula para:', titulo)
     const response = await fetch(`http://localhost:5029/api/monted/formula/${titulo}`)
     if (!response.ok) throw new Error('Erro ao carregar a fórmula')
-    formulas.value = await response.json()
+    const data = await response.json()
+    console.log('[FormulaDetails] Dados recebidos:', data)
+
+    formulas.value = data.map(f => ({ ...f, id: f.id }))
+    console.log('[FormulaDetails] Formulas com ID: ', formulas.value)
   } catch (error) {
-    console.error(error)
+    console.error('[FormulaDetails] Erro ao carregar fórmula:', error)
   }
 })
+
+// Redireciona para o formulário com dados preenchidos
+const editarFormula = (formula) => {
+  const formData = {
+    color: {
+      groupName: formula.grupo,
+      code: formula.titulo,
+      name: formula.nomeCor
+    },
+    description: formula.descricao || '', // 👈 aqui
+    isBase: formula.cliente === "Formula Base",
+    clientName: formula.cliente !== "Formula Base" ? formula.cliente : '',
+    formula: formula.formula.map(l => ({
+      componentName: l.componente,
+      quantity: Number(l.quantidade.replace(',', '.')),
+      unit: l.unit
+    }))
+  }
+
+  router.push({ path: '/new-formula', state: { formData, formulaId: formula.id } })
+}
 </script>
 
 <template>
@@ -32,6 +59,7 @@ onMounted(async () => {
             <p><strong>Código:</strong> {{ formula.titulo }}</p>
             <p><strong>Grupo:</strong> {{ formula.grupo }}</p>
             <p v-if="formula.cliente"><strong>Cliente:</strong> {{ formula.cliente }}</p>
+            <p v-if="formula.descricao"><strong>Descrição:</strong> {{ formula.descricao }}</p> <!-- 👈 aqui -->
           </div>
 
           <div class="components">
@@ -45,6 +73,10 @@ onMounted(async () => {
               </li>
             </ul>
           </div>
+
+          <button class="update-btn" @click="editarFormula(formula)">
+            ✏️ Editar
+          </button>
         </div>
       </div>
       <div v-else class="loading">
@@ -53,6 +85,7 @@ onMounted(async () => {
     </div>
   </BaseLayout>
 </template>
+
 
 <style scoped>
 .page-container {
@@ -148,5 +181,26 @@ onMounted(async () => {
 .component-qty {
   font-weight: 600;
   color: #2563eb;
+}
+
+.update-btn {
+  background: #f59e0b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: background 0.2s;
+}
+
+.update-btn:hover {
+  background: #d97706;
+}
+
+.update-btn:disabled {
+  background: #fbbf24;
+  cursor: not-allowed;
 }
 </style>

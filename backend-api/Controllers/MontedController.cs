@@ -58,5 +58,24 @@ namespace PaintingManager.Api.Controllers
             if (formulas == null || !formulas.Any()) return NotFound();
             return Ok(formulas);
         }
+
+        [HttpPut("update/{id}")]
+        public ActionResult<MontedDto> UpdateFormula(int id, [FromBody] MontedFullCreateDto dto)
+        {
+            try
+            {
+                var updated = _montedService.UpdateFormula(id, dto);
+                return Ok(updated);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
     }
 }

@@ -28,16 +28,18 @@ namespace PaintingManager.Api.Services
 
             return new MontedDto
             {
+                Id = formula.Id,
                 Titulo = formula.Color.code,
                 NomeCor = formula.Color.Name,
                 Grupo = formula.Color.Group.name,
                 Cliente = formula.IsBase ? "Formula Base" : formula.ClientName,
+                Descricao = formula.Description, // 🔹 incluir descrição
                 Formula = formula.FormulaLines
                     .Select(fl => new MontedLineDto
                     {
                         Componente = fl.Component.Name,
                         Quantidade = $"{fl.Quantity}",
-                        Unit = fl.Unit // 🔹 incluir unidade
+                        Unit = fl.Unit
                     })
                     .ToList()
             };
@@ -56,10 +58,12 @@ namespace PaintingManager.Api.Services
 
             return formulas.Select(f => new MontedDto
             {
+                Id = f.Id,
                 Titulo = f.Color.code,
                 NomeCor = f.Color.Name,
                 Grupo = f.Color.Group.name,
                 Cliente = f.IsBase ? "Formula Base" : f.ClientName,
+                Descricao = f.Description, // 🔹 incluir descrição
                 Formula = f.FormulaLines
                     .Select(fl => new MontedLineDto
                     {
@@ -83,10 +87,12 @@ namespace PaintingManager.Api.Services
 
             return formulas.Select(f => new MontedDto
             {
+                Id = f.Id,
                 Titulo = f.Color.code,
                 NomeCor = f.Color.Name,
                 Grupo = f.Color.Group.name,
                 Cliente = f.IsBase ? "Formula Base" : f.ClientName,
+                Descricao = f.Description, // 🔹 incluir descrição
                 Formula = f.FormulaLines
                     .Select(fl => new MontedLineDto
                     {
@@ -106,6 +112,7 @@ namespace PaintingManager.Api.Services
                 ColorId = dto.ColorId,
                 IsBase = dto.IsBase,
                 ClientName = dto.IsBase ? null : dto.ClientName,
+                Description = dto.Description, // 🔹 incluir descrição
                 FormulaLines = dto.Formula.Select(l => new FormulaLine
                 {
                     ComponentId = l.ComponentId,
@@ -172,6 +179,7 @@ namespace PaintingManager.Api.Services
                 ColorId = color.Id,
                 IsBase = dto.IsBase,
                 ClientName = dto.IsBase ? null : dto.ClientName,
+                Description = dto.Description, // 🔹 incluir descrição
                 FormulaLines = formulaLines
             };
 
@@ -180,7 +188,7 @@ namespace PaintingManager.Api.Services
 
             return GetFormulaDetailById(formula.Id);
         }
-        
+
         // 🔹 Obter fórmulas pelo código da cor
         public List<MontedDto> GetFormulasByTitulo(string titulo)
         {
@@ -194,10 +202,12 @@ namespace PaintingManager.Api.Services
 
             return formulas.Select(f => new MontedDto
             {
+                Id = f.Id,
                 Titulo = f.Color.code,
                 NomeCor = f.Color.Name,
                 Grupo = f.Color.Group.name,
                 Cliente = f.IsBase ? "Formula Base" : f.ClientName,
+                Descricao = f.Description, // 🔹 incluir descrição
                 Formula = f.FormulaLines
                     .Select(fl => new MontedLineDto
                     {
@@ -207,6 +217,75 @@ namespace PaintingManager.Api.Services
                     })
                     .ToList()
             }).ToList();
+        }
+        
+        // 🔹 Atualizar fórmula existente
+        public MontedDto UpdateFormula(int formulaId, MontedFullCreateDto dto)
+        {
+            var formula = _context.Formulas
+                .Include(f => f.FormulaLines)
+                .Include(f => f.Color) 
+                .FirstOrDefault(f => f.Id == formulaId);
+
+            if (formula == null)
+                throw new KeyNotFoundException($"Fórmula com ID {formulaId} não encontrada.");
+
+            var group = _context.Groups.FirstOrDefault(g => g.name == dto.Color.GroupName);
+            if (group == null)
+            {
+                group = new Group { name = dto.Color.GroupName };
+                _context.Groups.Add(group);
+                _context.SaveChanges();
+            }
+
+            var color = _context.Colors.FirstOrDefault(c => c.code == dto.Color.Code && c.GroupId == group.id);
+            if (color == null)
+            {
+                color = new Color
+                {
+                    code = dto.Color.Code,
+                    Name = dto.Color.Name,
+                    GroupId = group.id
+                };
+                _context.Colors.Add(color);
+                _context.SaveChanges();
+            }
+            else
+            {
+                color.Name = dto.Color.Name;
+                _context.SaveChanges();
+            }
+
+            formula.ColorId = color.Id;
+            formula.IsBase = dto.IsBase;
+            formula.ClientName = dto.IsBase ? null : dto.ClientName;
+            formula.Description = dto.Description; // 🔹 atualizar descrição
+
+            _context.FormulaLines.RemoveRange(formula.FormulaLines);
+
+            var newLines = new List<FormulaLine>();
+            foreach (var line in dto.Formula)
+            {
+                var component = _context.Components.FirstOrDefault(c => c.Name == line.ComponentName);
+                if (component == null)
+                {
+                    component = new Component { Name = line.ComponentName };
+                    _context.Components.Add(component);
+                    _context.SaveChanges();
+                }
+
+                newLines.Add(new FormulaLine
+                {
+                    ComponentId = component.Id,
+                    Quantity = line.Quantity,
+                    Unit = string.IsNullOrWhiteSpace(line.Unit) ? "L" : line.Unit
+                });
+            }
+
+            formula.FormulaLines = newLines;
+            _context.SaveChanges();
+
+            return GetFormulaDetailById(formula.Id);
         }
     }
 }

@@ -7,6 +7,7 @@ namespace PaintingManager.Api.Dtos
         public string? ClientName { get; set; }
         public string Unit { get; set; } = "g"; // default
         public List<MontedFullLineDto> Formula { get; set; }
+        public string? Description { get; set; }
     }
 
     public class MontedColorDto

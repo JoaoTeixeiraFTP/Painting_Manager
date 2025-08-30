@@ -4,14 +4,12 @@ import { useRouter } from 'vue-router'
 import BaseLayout from '../layouts/BaseLayout.vue'
 
 const router = useRouter()
+const formId = ref(null) // Guarda ID para edição
 
 // Estado do formulário
 const form = ref({
-  color: {
-    groupName: '',
-    code: '',
-    name: ''
-  },
+  color: { groupName: '', code: '', name: '' },
+  description: '', // 👈 novo campo
   isBase: true,
   clientName: '',
   formula: [{ componentName: '', quantity: 0, unit: 'g' }]
@@ -22,19 +20,23 @@ const colors = ref([])
 
 onMounted(async () => {
   try {
+    // Buscar grupos e cores
     const gRes = await fetch('http://localhost:5029/api/groups/list')
     groups.value = await gRes.json()
-
     const cRes = await fetch('http://localhost:5029/api/colors/list')
     colors.value = await cRes.json()
+
+    // Preencher formulário se vier do editar
+    if (history.state.formData) {
+      form.value = { ...history.state.formData }
+      formId.value = history.state.formulaId
+    }
   } catch (err) {
     console.error('[NewFormula] Erro ao carregar dados iniciais:', err)
   }
 })
 
-const addLine = () => {
-  form.value.formula.push({ componentName: '', quantity: 0, unit: 'L' })
-}
+const addLine = () => form.value.formula.push({ componentName: '', quantity: 0, unit: 'L' })
 const removeLine = (index) => form.value.formula.splice(index, 1)
 
 const submitForm = async () => {
@@ -45,6 +47,7 @@ const submitForm = async () => {
         code: form.value.color.code?.trim(),
         name: form.value.color.name?.trim()
       },
+      description: form.value.description?.trim() || null, // 👈 aqui
       isBase: form.value.isBase === true || form.value.isBase === 'true',
       clientName: form.value.clientName?.trim() || null,
       formula: form.value.formula
@@ -56,28 +59,23 @@ const submitForm = async () => {
         .filter(l => l.componentName.length > 0 && !Number.isNaN(l.quantity) && l.quantity > 0)
     }
 
-    console.log('[NewFormula] Payload a enviar:', JSON.stringify(payload, null, 2))
+    const url = formId.value
+      ? `http://localhost:5029/api/monted/update/${formId.value}`
+      : 'http://localhost:5029/api/monted/create'
+    const method = formId.value ? 'PUT' : 'POST'
 
-    const response = await fetch('http://localhost:5029/api/monted/create', {
-      method: 'POST',
+    const response = await fetch(url, {
+      method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
 
-    if (!response.ok) {
-      const text = await response.text().catch(() => '(sem corpo)')
-      console.error(`[NewFormula] Falhou: ${response.status} ${response.statusText} — corpo da resposta:`, text)
-      throw new Error(`Erro ao criar fórmula (${response.status})`)
-    }
-
-    const created = await response.json().catch(() => null)
-    console.log('[NewFormula] Fórmula criada com sucesso! Resposta da API:', created)
-    alert('✅ Fórmula criada com sucesso!')
+    if (!response.ok) throw new Error('Erro na API')
+    alert('✅ Fórmula salva com sucesso!')
     router.push('/dashboard')
-
-  } catch (error) {
-    console.error('[NewFormula] Exceção ao criar fórmula:', error)
-    alert('❌ Ocorreu um erro ao criar a fórmula. Veja a consola para detalhes.')
+  } catch (err) {
+    console.error('[NewFormula] Erro ao salvar fórmula:', err)
+    alert('❌ Ocorreu um erro ao salvar a fórmula. Veja a consola.')
   }
 }
 </script>
@@ -85,7 +83,7 @@ const submitForm = async () => {
 <template>
   <BaseLayout>
     <div class="page-container">
-      <h1 class="title">➕ Adicionar Nova Fórmula</h1>
+      <h1 class="title">{{ formId ? '✏️ Editar Fórmula' : '➕ Adicionar Nova Fórmula' }}</h1>
       <form @submit.prevent="submitForm" class="form-container">
 
         <!-- Dados da Cor -->
@@ -108,6 +106,12 @@ const submitForm = async () => {
               <option v-for="c in colors" :key="c.id" :value="c.name" />
             </datalist>
           </label>
+        </div>
+
+        <!-- Descrição -->
+        <div class="card">
+          <h2>📝 Descrição</h2>
+          <textarea v-model="form.description" rows="3" placeholder="Escreva uma descrição opcional da fórmula"></textarea>
         </div>
 
         <!-- Tipo de Fórmula -->
@@ -140,6 +144,7 @@ const submitForm = async () => {
     </div>
   </BaseLayout>
 </template>
+
 
 <style scoped>
 .page-container { max-width: 900px; margin: 0 auto; }
