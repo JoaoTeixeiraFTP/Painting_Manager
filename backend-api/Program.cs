@@ -41,6 +41,11 @@ app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseStaticFiles();        // <- serve a pasta wwwroot (o teu site)
+app.UseRouting();
+
 app.MapControllers();
+
+app.MapFallbackToFile("index.html");
 
 app.Run();
